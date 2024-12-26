@@ -1,0 +1,37 @@
+from gtts import gTTS
+import fitz  # PyMuPDF
+import os
+
+# Define a function to extract text from a PDF
+def extract_text_from_pdf(pdf_path):
+    """Extracts and concatenates text from all pages of a PDF."""
+    pdf_document = fitz.open(pdf_path)
+    full_text = ""
+    for page in pdf_document:
+        full_text += page.get_text() + "\n"  # Add a newline for better readability
+    pdf_document.close()
+    return full_text
+
+# Define a function to convert text to speech and save as an MP3 file
+def text_to_speech(text, output_path="output.mp3"):
+    """Converts text to speech using Google TTS and saves it as an MP3 file."""
+    if not text.strip():
+        print("No readable text found in the PDF!")
+        return
+    speech = gTTS(text, lang='en')  # Generate speech in English
+    speech.save(output_path)
+    print(f"Audio has been saved as: {output_path}")
+
+# Upload your PDF file
+from google.colab import files
+uploaded = files.upload()  # Upload the file
+pdf_path = list(uploaded.keys())[0]  # Automatically get the uploaded file name
+
+# Extract text from the PDF
+extracted_text = extract_text_from_pdf(pdf_path)
+
+# Convert the extracted text to speech and save it as an audio file
+text_to_speech(extracted_text, "output.mp3")
+
+# Download the audio file in Colab
+files.download("output.mp3")
